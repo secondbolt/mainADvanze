@@ -216,6 +216,11 @@ document.getElementById('createUpdateForm').addEventListener('submit', async (e)
     e.preventDefault();
     
     const formData = new FormData(e.target);
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating...';
     
     try {
         const response = await fetch('/admin/updates', {
@@ -228,12 +233,23 @@ document.getElementById('createUpdateForm').addEventListener('submit', async (e)
         if (result.success) {
             showNotification('Update created successfully!', 'success');
             document.getElementById('createUpdateModal').style.display = 'none';
+            e.target.reset();
             location.reload();
         } else {
-            showNotification(result.message || 'Failed to create update', 'error');
+            if (result.errors) {
+                result.errors.forEach(error => {
+                    showNotification(error.msg, 'error');
+                });
+            } else {
+                showNotification(result.message || 'Failed to create update', 'error');
+            }
         }
     } catch (error) {
+        console.error('Create update error:', error);
         showNotification('Network error. Please try again.', 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Update';
     }
 });
 

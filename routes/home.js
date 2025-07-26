@@ -112,6 +112,7 @@ router.post('/apply', [
     if (!errors.isEmpty()) {
       return res.status(400).json({ 
         success: false, 
+        message: 'Please check your form data',
         errors: errors.array() 
       });
     }
@@ -125,7 +126,10 @@ router.post('/apply', [
       req.session.tempUser = {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        phone: user.phone,
+        preferredCountry: user.preferredCountry,
+        sessionId: user.sessionId
       };
       
       return res.json({ 

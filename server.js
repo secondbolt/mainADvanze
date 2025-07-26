@@ -66,11 +66,11 @@ app.use('/chat', chatRoutes);
 
 // ✅ Socket.IO logic
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  // Reduced logging for cleaner console output
 
   socket.on('join-room', (room) => {
     socket.join(room);
-    console.log(`User ${socket.id} joined room ${room}`);
+    // User joined room silently
   });
 
   socket.on('chat-message', async (data) => {
@@ -87,11 +87,13 @@ io.on('connection', (socket) => {
 
       await message.save();
 
-      io.to(data.sessionId).emit('chat-message', {
+      // Emit to all clients in the room except sender to prevent duplicates
+      socket.to(data.sessionId).emit('chat-message', {
+        sessionId: data.sessionId,
         sender: data.sender,
         senderType: data.senderType,
         message: data.message,
-        timestamp: new Date()
+        timestamp: message.createdAt
       });
     } catch (error) {
       console.error('Error saving chat message:', error);
@@ -99,7 +101,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    // User disconnected silently
   });
 });
 

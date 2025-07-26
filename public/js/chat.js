@@ -263,7 +263,6 @@ class AdvancedChatSystem {
 
     if (!message || !this.socket) return;
 
-    // Display message immediately for better UX
     const messageData = {
       sessionId: this.sessionId,
       sender: this.userName,
@@ -272,7 +271,8 @@ class AdvancedChatSystem {
       timestamp: new Date()
     };
 
-    this.displayMessage(messageData, true); // true for optimistic update
+    // Display message immediately for better UX
+    this.displayMessage(messageData);
 
     // Send to server
     this.socket.emit('chat-message', messageData);
@@ -285,7 +285,7 @@ class AdvancedChatSystem {
     this.scrollToBottom();
   }
 
-  displayMessage(data, isOptimistic = false) {
+  displayMessage(data) {
     const messagesContainer = document.getElementById('chatMessages');
     if (!messagesContainer) return;
 
@@ -297,9 +297,6 @@ class AdvancedChatSystem {
 
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${data.senderType}`;
-    if (isOptimistic) {
-      messageDiv.classList.add('sending');
-    }
 
     const timeString = new Date(data.timestamp).toLocaleTimeString([], {
       hour: '2-digit',
@@ -326,13 +323,6 @@ class AdvancedChatSystem {
       messageDiv.style.transform = 'translateY(0)';
       messageDiv.style.transition = 'all 0.3s ease';
     }, 10);
-
-    // Remove optimistic class after server confirmation
-    if (isOptimistic) {
-      setTimeout(() => {
-        messageDiv.classList.remove('sending');
-      }, 1000);
-    }
 
     this.scrollToBottom();
   }

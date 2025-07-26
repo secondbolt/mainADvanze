@@ -132,20 +132,26 @@ function sendMessage() {
     
     if (!message || !currentSessionId) return;
     
-    // Send message via socket
-    socket.emit('chat-message', {
+    // Display message immediately in admin interface
+    const messageData = {
         sessionId: currentSessionId,
         sender: 'Admin',
         senderType: 'admin',
-        message: message
-    });
+        message: message,
+        timestamp: new Date()
+    };
+    
+    addMessageToChat(messageData);
+    
+    // Send message via socket
+    socket.emit('chat-message', messageData);
     
     input.value = '';
 }
 
 // Listen for incoming messages
 socket.on('chat-message', (data) => {
-    if (data.sessionId === currentSessionId || currentSessionId === null) {
+    if (data.sessionId === currentSessionId && data.senderType === 'user') {
         addMessageToChat(data);
     }
 });
